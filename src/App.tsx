@@ -59,6 +59,7 @@ export default function App() {
   const [subTextSize, setSubTextSize] = useState(10);
   const [fontFamily, setFontFamily] = useState<'bebas' | 'crushed'>('crushed');
   const [overlayOpacity, setOverlayOpacity] = useState(60);
+  const [isOverlayEnabled, setIsOverlayEnabled] = useState(true);
   const [activeControl, setActiveControl] = useState<'main' | 'profile' | 'text' | 'overlay' | null>(null);
   
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -100,6 +101,7 @@ export default function App() {
         if (parsed.subTextSize !== undefined) setSubTextSize(parsed.subTextSize);
         if (parsed.fontFamily !== undefined) setFontFamily(parsed.fontFamily);
         if (parsed.overlayOpacity !== undefined) setOverlayOpacity(parsed.overlayOpacity);
+        if (parsed.isOverlayEnabled !== undefined) setIsOverlayEnabled(parsed.isOverlayEnabled);
       } catch (e) {
         console.error('Failed to parse saved state', e);
       }
@@ -124,7 +126,8 @@ export default function App() {
       subTextPos,
       subTextSize,
       fontFamily,
-      overlayOpacity
+      overlayOpacity,
+      isOverlayEnabled
     };
     try {
       localStorage.setItem('pic4pro_state', JSON.stringify(stateToSave));
@@ -133,7 +136,7 @@ export default function App() {
       // We don't alert the user on every change to avoid annoyance, 
       // but we prevent the app from crashing.
     }
-  }, [mainImage, profileImage, punchline, punchlineSize, punchlineAlign, subText, layout, version, mainPos, profilePos, profileContainerPos, punchlinePos, subTextPos, subTextSize, fontFamily, overlayOpacity]);
+  }, [mainImage, profileImage, punchline, punchlineSize, punchlineAlign, subText, layout, version, mainPos, profilePos, profileContainerPos, punchlinePos, subTextPos, subTextSize, fontFamily, overlayOpacity, isOverlayEnabled]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'profile') => {
     const file = e.target.files?.[0];
@@ -656,17 +659,33 @@ export default function App() {
                     </div>
                   </>
                 ) : activeControl === 'overlay' ? (
-                  <div className="space-y-1">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[9px] font-bold text-gray-400 uppercase">Opacité</span>
-                      <span className="text-[9px] font-mono text-[#FF6321]">{overlayOpacity}%</span>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-bold text-gray-400 uppercase">Activer le filtre</span>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer"
+                          checked={isOverlayEnabled}
+                          onChange={(e) => setIsOverlayEnabled(e.target.checked)}
+                        />
+                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#FF6321]"></div>
+                      </label>
                     </div>
-                    <input 
-                      type="range" min="0" max="100" step="1" 
-                      value={overlayOpacity} 
-                      onChange={(e) => setOverlayOpacity(parseInt(e.target.value))}
-                      className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#FF6321]"
-                    />
+                    
+                    <div className={cn("space-y-1 transition-opacity", !isOverlayEnabled && "opacity-50 pointer-events-none")}>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[9px] font-bold text-gray-400 uppercase">Opacité</span>
+                        <span className="text-[9px] font-mono text-[#FF6321]">{overlayOpacity}%</span>
+                      </div>
+                      <input 
+                        type="range" min="0" max="100" step="1" 
+                        value={overlayOpacity} 
+                        onChange={(e) => setOverlayOpacity(parseInt(e.target.value))}
+                        className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#FF6321]"
+                        disabled={!isOverlayEnabled}
+                      />
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -879,10 +898,12 @@ export default function App() {
                         </div>
                       )}
                       {/* Stronger Gradient Overlay for readability */}
-                      <div 
-                        className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/10 to-black pointer-events-none" 
-                        style={{ opacity: overlayOpacity / 100 }}
-                      />
+                      {isOverlayEnabled && (
+                        <div 
+                          className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/10 to-black pointer-events-none" 
+                          style={{ opacity: overlayOpacity / 100 }}
+                        />
+                      )}
                     </div>
 
                     {/* Content Overlay */}
