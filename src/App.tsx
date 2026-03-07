@@ -744,18 +744,18 @@ export default function App() {
             ref={canvasRef}
             className={cn(
               "relative bg-white transition-all duration-500 ease-in-out",
-              layout === 'portrait' ? "aspect-[9/16] w-full max-w-[400px]" : 
-              layout === 'landscape' ? "aspect-[16/9] w-full max-w-[700px]" :
-              "aspect-[3/4] w-full max-w-[500px]"
+              layout === 'portrait' ? "aspect-[9/16] w-full max-w-[450px]" : 
+              layout === 'landscape' ? "aspect-[16/9] w-full max-w-[800px]" :
+              "aspect-[3/4] w-full max-w-[600px]"
             )}
           >
             <div className={cn(
               "w-full h-full flex items-center justify-center transition-all duration-500",
-              version === 'classic' ? "p-10" : "p-0"
+              version === 'classic' ? "p-4" : "p-0"
             )}>
               <div className={cn(
                 "relative w-full h-full overflow-hidden transition-all duration-500",
-                version === 'classic' ? "bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] rounded-[2rem]" : "bg-transparent"
+                version === 'classic' ? "bg-white border border-gray-200 rounded-[2rem]" : "bg-transparent"
               )}>
                 {/* The Orange Frame for Immersive - Moved inside for better export compatibility */}
                 {version === 'immersive' && (
@@ -766,7 +766,7 @@ export default function App() {
                   <div className="absolute top-0 left-0 w-full h-full p-6 flex flex-col">
                     <div 
                       className={cn(
-                        "relative flex-1 rounded-2xl overflow-hidden bg-gray-50 group transition-all border-[6px] border-[#FF6321]"
+                        "relative flex-1 rounded-2xl overflow-hidden bg-gray-50 group transition-all border border-[#FF6321]"
                       )}
                     >
                       {mainImage ? (
@@ -831,7 +831,7 @@ export default function App() {
                     <div 
                       {...bindProfile()}
                       className={cn(
-                        "rounded-full border-2 border-white shadow-xl overflow-hidden bg-gray-100 flex-shrink-0 absolute z-30 touch-none cursor-move",
+                        "rounded-full border-2 border-white overflow-hidden bg-gray-100 flex-shrink-0 absolute z-30 touch-none cursor-move",
                         "w-[80px] h-[80px]"
                       )}
                       style={{
