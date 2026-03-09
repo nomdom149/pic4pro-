@@ -201,7 +201,6 @@ export default function App() {
         }
       };
 
-      let blob: Blob | null = null;
       let dataUrl: string | null = null;
 
       if (exportFormat === 'jpg') {
@@ -216,56 +215,14 @@ export default function App() {
       
       if (!dataUrl || dataUrl === 'data:,') throw new Error('Export failed: Empty image data');
       
-      // Convert dataUrl to Blob for sharing
-      const fetchResponse = await fetch(dataUrl);
-      blob = await fetchResponse.blob();
-      
-      if (!blob || blob.size < 100) throw new Error('Export failed: Empty blob');
-
       setExportProgress(90);
-      const extension = exportFormat === 'jpg' ? 'jpg' : 'png';
-      const fileName = `pic4pro-${Date.now()}.${extension}`;
-      const objectUrl = URL.createObjectURL(blob);
       
-      // 5. Handle download/share
-      let shared = false;
-      if (navigator.share && navigator.canShare) {
-        try {
-          const file = new File([blob], fileName, { type: exportFormat === 'jpg' ? 'image/jpeg' : 'image/png' });
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              files: [file],
-              title: '[🟠Pic4pro] Export',
-            });
-            shared = true;
-            setExportProgress(100);
-            setExportStatus('success');
-            setTimeout(() => {
-              setIsExporting(false);
-              setExportStatus('idle');
-              setExportProgress(0);
-            }, 1500);
-            URL.revokeObjectURL(objectUrl);
-            return;
-          }
-        } catch (shareErr) {
-          console.log('Share failed, falling back to manual download', shareErr);
-        }
-      }
-
-      // If share failed or is not available, show the image in the modal
-      // so iOS users can long-press to save it to their gallery.
+      // 5. Show the image in the modal
+      // This is the most reliable method for both mobile and desktop.
+      // Users can long-press to save on mobile or click the download button.
       setFinalExportedImage(dataUrl);
       setExportProgress(100);
       setExportStatus('success');
-      
-      // Also try to trigger a download for desktop users
-      const link = document.createElement('a');
-      link.download = fileName;
-      link.href = objectUrl;
-      link.click();
-      
-      // We don't auto-close here so the user can see the image and long press it
       
     } catch (err) {
       console.error('Export failed', err);
@@ -350,7 +307,7 @@ export default function App() {
               <div className="space-y-4 animate-in fade-in zoom-in duration-300">
                 <h3 className="text-xl font-bold text-gray-900">Image prête ! 🎉</h3>
                 <p className="text-sm text-gray-600">
-                  <strong>Sur iPhone :</strong> Appuyez longuement sur l'image ci-dessous et choisissez "Enregistrer dans Photos".
+                  Appuyez longuement sur l'image pour l'enregistrer (Mobile) ou utilisez le bouton ci-dessous.
                 </p>
                 <img 
                   src={finalExportedImage} 
